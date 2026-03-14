@@ -680,7 +680,7 @@ export default function Home() {
             </h2>
 
             <p className="text-text-muted text-base md:text-lg mb-10 md:mb-14 max-w-xl mx-auto leading-relaxed px-2">
-              Join traders who&apos;ve upgraded their information advantage.
+              Start your 14-day free trial and experience the difference.
               14-day free trial — <span className="text-primary font-medium">no credit card required.</span>
             </p>
 
@@ -714,10 +714,8 @@ export default function Home() {
                 <svg className="w-4 h-4 text-primary/50" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                 </svg>
-                Bank-level encryption
+                Encrypted data
               </span>
-              <span>·</span>
-              <span>SOC 2 Compliant</span>
               <span>·</span>
               <span>Cancel anytime</span>
             </p>

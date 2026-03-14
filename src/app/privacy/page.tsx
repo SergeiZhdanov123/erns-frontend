@@ -27,7 +27,7 @@ export default function PrivacyPage() {
 
                     <section>
                         <h2 className="text-xl font-semibold text-text-main mb-3">4. Data Security</h2>
-                        <p>We implement industry-standard security measures including encryption in transit (TLS 1.3) and at rest (AES-256), regular security audits, and SOC 2 compliance. However, no method of transmission over the internet is 100% secure.</p>
+                        <p>We implement security measures including encryption in transit (TLS) and at rest (AES-256). However, no method of transmission over the internet is 100% secure.</p>
                     </section>
 
                     <section>

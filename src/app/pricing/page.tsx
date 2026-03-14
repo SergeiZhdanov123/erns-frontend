@@ -82,7 +82,7 @@ const faqs = [
     },
     {
         q: "Is my data secure?",
-        a: "SOC 2 compliant with bank-level encryption. We never share or sell your data.",
+        a: "Your data is encrypted in transit and at rest. We never share or sell your data.",
     },
 ];
 

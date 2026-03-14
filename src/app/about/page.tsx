@@ -24,7 +24,7 @@ const values = [
     {
         icon: "🛡️",
         title: "Trust & Transparency",
-        description: "Your data is yours. We never sell personal information, we're SOC 2 compliant, and our AI models explain their reasoning — no black boxes.",
+        description: "Your data is yours. We never sell personal information, and our AI models explain their reasoning — no black boxes.",
     },
 ];
 
@@ -32,7 +32,7 @@ const stats = [
     { value: "5,000+", label: "Stocks Covered" },
     { value: "15,000+", label: "Filings Parsed Daily" },
     { value: "<50ms", label: "Data Latency" },
-    { value: "99.9%", label: "Uptime SLA" },
+    { value: "24/7", label: "Monitoring" },
 ];
 
 export default function AboutPage() {
@@ -204,7 +204,7 @@ export default function AboutPage() {
                         Ready to trade with an edge?
                     </h2>
                     <p className="text-text-muted mb-8 px-2">
-                        Join thousands of traders who use Erns for real-time earnings intelligence.
+                        Start using Erns for real-time earnings intelligence.
                     </p>
                     <a href="/sign-up">
                         <motion.button
