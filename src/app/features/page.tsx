@@ -105,9 +105,7 @@ export default function FeaturesPage() {
                             </div>
                             <h3 className="text-lg font-semibold text-text-main mb-2">{feature.title}</h3>
                             <p className="text-text-muted text-sm mb-4">{feature.description}</p>
-                            <Link href={feature.href} className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
-                                Learn more →
-                            </Link>
+
                         </motion.div>
                     ))}
                 </div>
