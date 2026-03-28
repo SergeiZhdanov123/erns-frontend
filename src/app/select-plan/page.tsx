@@ -42,7 +42,7 @@ const plans = [
     {
         id: "pro",
         name: "Pro",
-        price: "$49",
+        price: "$10",
         period: "/month",
         description: "For serious traders who need an edge",
         features: [

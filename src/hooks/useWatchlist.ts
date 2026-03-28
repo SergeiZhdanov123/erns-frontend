@@ -39,14 +39,16 @@ async function _fetchWatchlist(email: string) {
 }
 
 async function _addTicker(email: string, ticker: string, notes?: string) {
+    const t = ticker.toUpperCase();
+    if (_items.find((i) => i.ticker === t)) return;
+
+    // Optimistic update FIRST
+    const prevItems = [..._items];
+    _items = [..._items, { ticker: t, added_at: new Date().toISOString(), notes: notes || null }];
+    _notify();
+
     try {
         await apiAdd(email, ticker, notes);
-        // Optimistic update
-        const t = ticker.toUpperCase();
-        if (!_items.find((i) => i.ticker === t)) {
-            _items = [..._items, { ticker: t, added_at: new Date().toISOString(), notes: notes || null }];
-            _notify();
-        }
         // Create a notification for watchlist add
         try {
             await fetch("/api/notifications", {
@@ -64,6 +66,9 @@ async function _addTicker(email: string, ticker: string, notes?: string) {
         _fetchWatchlist(email);
     } catch (err) {
         console.error("Failed to add ticker:", err);
+        // Rollback
+        _items = prevItems;
+        _notify();
         throw err;
     }
 }

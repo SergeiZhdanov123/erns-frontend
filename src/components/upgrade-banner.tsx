@@ -64,7 +64,7 @@ export function UpgradeBanner({
                         Unlock unlimited access, AI signals & API
                     </p>
                     <div className="flex items-center gap-1 text-[10px] text-primary group-hover:gap-2 transition-all">
-                        <span className="font-semibold">$49/mo</span>
+                        <span className="font-semibold">$10/mo</span>
                         <ArrowIcon />
                     </div>
                 </motion.div>
@@ -112,7 +112,7 @@ export function UpgradeBanner({
                         whileTap={{ scale: 0.98 }}
                         className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:shadow-[0_0_20px_rgba(0,230,118,0.3)] transition-all flex items-center justify-center gap-2"
                     >
-                        Upgrade Now — $49/mo
+                        Upgrade Now — $10/mo
                         <ArrowIcon />
                     </motion.button>
                 </Link>

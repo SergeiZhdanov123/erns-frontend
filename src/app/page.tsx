@@ -620,7 +620,7 @@ export default function Home() {
           >
             {[
               { name: "Starter", price: "Free", period: "", features: ["5 watchlist stocks", "Basic earnings calendar", "Limited screener", "Community support"], cta: "Start Free", popular: false },
-              { name: "Pro", price: "$49", period: "/mo", features: ["Unlimited watchlist", "AI-powered signals", "Advanced screener", "50K API calls/mo", "Real-time SEC alerts", "Priority support"], cta: "Start 14-Day Trial", popular: true },
+              { name: "Pro", price: "$10", period: "/mo", features: ["Unlimited watchlist", "AI-powered signals", "Advanced screener", "50K API calls/mo", "Real-time SEC alerts", "Priority support"], cta: "Start 14-Day Trial", popular: true },
               { name: "Enterprise", price: "$299", period: "/mo", features: ["Everything in Pro", "Unlimited API calls", "Custom signal models", "Dedicated support", "SLA guarantees", "Team management"], cta: "Contact Sales", popular: false },
             ].map((plan, i) => (
               <motion.div key={i} variants={staggerChild}

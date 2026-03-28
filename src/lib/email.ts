@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
 });
 
 export async function sendEmail(to: string, subject: string, html: string) {
-    const from = process.env.SMTP_USER || 'tychefinancials@gmail.com';
+    const from = process.env.SMTP_USER || 'support@ernsdata.com';
     try {
         const result = await transporter.sendMail({
             from: `"Erns" <${from}>`,
@@ -98,7 +98,7 @@ Open Your Dashboard →
 <!-- FOOTER -->
 <tr><td style="padding:20px 40px 30px;text-align:center;border-top:1px solid #1a2e1a;">
 <p style="margin:0;color:#4a6a4a;font-size:12px;">© ${new Date().getFullYear()} Erns — Built for serious investors</p>
-<p style="margin:5px 0 0;color:#3a5a3a;font-size:11px;">Questions? Reply to this email or reach out at tychefinancials@gmail.com</p>
+<p style="margin:5px 0 0;color:#3a5a3a;font-size:11px;">Questions? Reply to this email or reach out at support@ernsdata.com</p>
 </td></tr>
 
 </table>

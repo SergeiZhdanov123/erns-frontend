@@ -52,7 +52,7 @@ export default function TermsPage() {
 
                     <section>
                         <h2 className="text-xl font-semibold text-text-main mb-3">9. Contact</h2>
-                        <p>For questions about these terms, contact us at <span className="text-primary">legal@tychefinancials.com</span>.</p>
+                        <p>For questions about these terms, contact us at <span className="text-primary">sergei.zhdanov1234@gmail.com</span>.</p>
                     </section>
                 </div>
             </div>

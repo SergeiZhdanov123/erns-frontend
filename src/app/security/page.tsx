@@ -27,12 +27,12 @@ export default function SecurityPage() {
 
                     <section>
                         <h2 className="text-xl font-semibold text-text-main mb-3">Vulnerability Reporting</h2>
-                        <p>We appreciate responsible vulnerability disclosure. If you discover a security issue, please report it to <span className="text-primary">security@tychefinancials.com</span>.</p>
+                        <p>We appreciate responsible vulnerability disclosure. If you discover a security issue, please report it to <span className="text-primary">sergei.zhdanov1234@gmail.com</span>.</p>
                     </section>
 
                     <section>
                         <h2 className="text-xl font-semibold text-text-main mb-3">Questions</h2>
-                        <p>For security-related inquiries, contact <span className="text-primary">security@tychefinancials.com</span>.</p>
+                        <p>For security-related inquiries, contact <span className="text-primary">sergei.zhdanov1234@gmail.com</span>.</p>
                     </section>
                 </div>
             </div>

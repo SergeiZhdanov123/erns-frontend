@@ -8,6 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+const isProduction = process.env.NEXT_PUBLIC_PRODUCTION === "true";
 
 export async function POST(req: NextRequest) {
     try {
@@ -16,8 +17,8 @@ export async function POST(req: NextRequest) {
 
         let event: Stripe.Event;
 
-        // If webhook secret is set, verify signature; otherwise trust the event (dev mode)
         if (webhookSecret) {
+            // Verify webhook signature
             if (!signature) {
                 return NextResponse.json({ error: "Missing signature" }, { status: 400 });
             }
@@ -27,6 +28,13 @@ export async function POST(req: NextRequest) {
                 console.error(`Webhook signature verification failed: ${err.message}`);
                 return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 });
             }
+        } else if (isProduction) {
+            // In production, REQUIRE webhook secret — refuse to process without it
+            console.error("[Stripe Webhook] CRITICAL: STRIPE_WEBHOOK_SECRET is not set in production!");
+            return NextResponse.json(
+                { error: "Webhook secret not configured" },
+                { status: 500 }
+            );
         } else {
             // Dev mode — no signature check, parse event directly
             event = JSON.parse(body) as Stripe.Event;
@@ -88,9 +96,10 @@ export async function POST(req: NextRequest) {
                     if (plan) {
                         user.plan = plan as any;
                     } else {
-                        // Try to determine plan from price amount
+                        // Try to determine plan from price amount (updated for new pricing)
                         const priceAmount = subscription.items?.data?.[0]?.price?.unit_amount;
-                        if (priceAmount === 4900) user.plan = "pro";
+                        if (priceAmount === 1000) user.plan = "pro";           // $10
+                        else if (priceAmount === 4900) user.plan = "pro";      // legacy $49
                         else if (priceAmount === 29900) user.plan = "enterprise";
                     }
 

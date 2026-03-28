@@ -37,7 +37,7 @@ export default function PrivacyPage() {
 
                     <section>
                         <h2 className="text-xl font-semibold text-text-main mb-3">6. Your Rights</h2>
-                        <p>Depending on your jurisdiction, you may have the right to access, correct, delete, or export your personal data. You can exercise these rights by contacting us at privacy@tychefinancials.com or through your account settings.</p>
+                        <p>Depending on your jurisdiction, you may have the right to access, correct, delete, or export your personal data. You can exercise these rights by contacting us at sergei.zhdanov1234@gmail.com or through your account settings.</p>
                     </section>
 
                     <section>
@@ -47,7 +47,7 @@ export default function PrivacyPage() {
 
                     <section>
                         <h2 className="text-xl font-semibold text-text-main mb-3">8. Contact Us</h2>
-                        <p>If you have any questions about this privacy policy or our data practices, contact us at <span className="text-primary">privacy@tychefinancials.com</span>.</p>
+                        <p>If you have any questions about this privacy policy or our data practices, contact us at <span className="text-primary">sergei.zhdanov1234@gmail.com</span>.</p>
                     </section>
                 </div>
             </div>

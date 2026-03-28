@@ -79,16 +79,36 @@ export async function POST(req: NextRequest) {
             // Fire-and-forget email to user's primary email
             const userEmail = user.emailAddresses?.[0]?.emailAddress;
             if (userEmail) {
+                const isEarnings = body.type === "earnings_drop";
+                const accentColor = isEarnings
+                    ? (body.title?.includes("BEAT") ? "#10b981" : "#ef4444")
+                    : "#10b981";
+
                 sendEmail(
                     userEmail,
                     `${body.ticker ? `[${body.ticker}] ` : ""}${body.title}`,
-                    `<div style="font-family:sans-serif;color:#e4e4e7;background:#0a0a0f;padding:32px;border-radius:12px;">
-                        ${body.ticker ? `<div style="display:inline-block;padding:4px 12px;background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.2);border-radius:8px;font-size:13px;font-weight:700;color:#00e676;font-family:monospace;margin-bottom:16px;">${body.ticker}</div>` : ""}
-                        <h2 style="margin:0 0 8px;font-size:16px;color:#e4e4e7;">${body.title}</h2>
-                        <p style="margin:0;font-size:14px;color:#71717a;line-height:1.5;">${body.message}</p>
-                        <hr style="border:none;border-top:1px solid #27272a;margin:20px 0;">
-                        <p style="margin:0;font-size:11px;color:#3f3f46;">Erns — tychefinancials.com</p>
-                    </div>`
+                    `<!DOCTYPE html>
+<html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/></head>
+<body style="margin:0;padding:0;background:#0a0f0a;font-family:'Segoe UI',Roboto,Arial,sans-serif;color:#e0e0e0;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0f0a;padding:40px 0;">
+<tr><td align="center">
+<table width="560" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#0d1a0d,#0a120a);border-radius:16px;border:1px solid #1a2e1a;">
+<tr><td style="background:linear-gradient(135deg,${accentColor},${accentColor}cc);padding:24px 32px;text-align:center;">
+<h1 style="margin:0;color:#fff;font-size:18px;font-weight:700;">${body.title}</h1>
+</td></tr>
+<tr><td style="padding:28px 32px;">
+${body.ticker ? `<div style="display:inline-block;padding:4px 12px;background:${accentColor}18;border:1px solid ${accentColor}33;border-radius:8px;font-size:13px;font-weight:700;color:${accentColor};font-family:monospace;margin-bottom:16px;">${body.ticker}</div>` : ""}
+<p style="margin:0;font-size:14px;color:#b0c0b0;line-height:1.6;">${body.message}</p>
+<div style="text-align:center;margin:24px 0;">
+<a href="${process.env.NEXT_PUBLIC_APP_URL || "https://ernsdata.com"}/dashboard" style="display:inline-block;padding:10px 28px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;text-decoration:none;border-radius:10px;font-weight:600;font-size:13px;">Open Dashboard →</a>
+</div>
+</td></tr>
+<tr><td style="padding:16px 32px;text-align:center;border-top:1px solid #1a2e1a;">
+<p style="margin:0;color:#4a6a4a;font-size:11px;">© ${new Date().getFullYear()} Erns — ernsdata.com</p>
+</td></tr>
+</table>
+</td></tr></table>
+</body></html>`
                 ).catch(() => { /* email is non-critical */ });
             }
 

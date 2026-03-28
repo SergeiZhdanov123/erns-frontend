@@ -27,10 +27,16 @@ export async function GET(request: NextRequest) {
     try {
         await connectToDatabase();
 
-        // Find all active starter plan users
+        // Find starter users who have NEVER had a paid subscription
+        // Exclude anyone with a stripeCustomerId (they already know about Pro, whether active or cancelled)
         const starterUsers = await User.find({
             plan: "starter",
             subscriptionStatus: "active",
+            $or: [
+                { stripeCustomerId: { $exists: false } },
+                { stripeCustomerId: null },
+                { stripeCustomerId: "" },
+            ],
         }).select("email name").lean();
 
         if (!starterUsers || starterUsers.length === 0) {

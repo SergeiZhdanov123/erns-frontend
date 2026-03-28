@@ -21,7 +21,7 @@ const plans = [
             "5 stocks in watchlist",
             "Basic SEC filing alerts",
             "Earnings calendar",
-            "1,000 API calls/month",
+            "No API access",
             "Community support",
         ],
         cta: "Get Started",
@@ -30,7 +30,7 @@ const plans = [
     },
     {
         name: "Pro",
-        price: "$49",
+        price: "$10",
         period: "/month",
         description: "For serious traders who need an edge",
         features: [

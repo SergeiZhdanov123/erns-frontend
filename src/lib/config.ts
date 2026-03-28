@@ -15,14 +15,15 @@ export const config = {
 
     /** Frontend app URL */
     appUrl: isProduction
-        ? "https://tychefinancials.com"
+        ? "https://ernsdata.com"
         : (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
 
     /** Backend API URL */
     apiUrl: isProduction
-        ? "https://api.tychefinancials.com"
+        ? "https://api.ernsdata.com"
         : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"),
 
     /** Stripe publishable key */
     stripePublishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "",
 } as const;
+

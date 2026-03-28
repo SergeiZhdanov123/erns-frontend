@@ -121,11 +121,28 @@ export async function POST(request: NextRequest) {
         const customerId = await getOrCreateStripeCustomer(email, userName, user._id.toString());
 
         const isPro = plan === "pro";
-        const unitAmount = isPro ? 4900 : 29900; // $49 or $299
+        const unitAmount = isPro ? 1000 : 29900; // $10 or $299
         const productName = isPro ? "Erns Pro" : "Erns Enterprise";
         const productDescription = isPro
             ? "Unlimited API access, Real-time signals, Advanced screener, AI-powered insights"
             : "Everything in Pro + Unlimited API calls, Custom signal models, Dedicated support, SLA";
+
+        // Prevent double-subscribe: if user already has an active subscription, redirect to portal instead
+        if (user.stripeSubscriptionId) {
+            try {
+                const existingSub = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+                if (existingSub && ["active", "trialing"].includes(existingSub.status)) {
+                    // User already has an active subscription — send them to billing portal to manage
+                    const portalSession = await stripe.billingPortal.sessions.create({
+                        customer: user.stripeCustomerId!,
+                        return_url: `${config.appUrl}/settings`,
+                    });
+                    return NextResponse.json({ success: true, url: portalSession.url });
+                }
+            } catch {
+                // Subscription might not exist anymore, proceed with new checkout
+            }
+        }
 
         const checkoutSession = await stripe.checkout.sessions.create({
             mode: "subscription",

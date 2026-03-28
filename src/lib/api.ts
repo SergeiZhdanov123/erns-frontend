@@ -302,7 +302,7 @@ export async function removeFromWatchlist(
 
 export async function createAPIKey(
     email: string,
-    plan: 'starter' | 'premium' | 'enterprise'
+    plan: 'starter' | 'pro' | 'enterprise'
 ): Promise<{
     api_key: string;
     key_prefix: string;

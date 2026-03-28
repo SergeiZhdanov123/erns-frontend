@@ -34,7 +34,7 @@ export default function CookiesPage() {
 
                     <section>
                         <h2 className="text-xl font-semibold text-text-main mb-3">5. Contact Us</h2>
-                        <p>For questions about our cookie practices, contact us at <span className="text-primary">privacy@tychefinancials.com</span>.</p>
+                        <p>For questions about our cookie practices, contact us at <span className="text-primary">sergei.zhdanov1234@gmail.com</span>.</p>
                     </section>
                 </div>
             </div>

@@ -220,12 +220,129 @@ export function ErnsChat() {
     );
 }
 
-// Render markdown-like AI responses as proper JSX
-function formatAIResponse(content: string): React.ReactNode {
-    // Split into blocks by double newline
-    const blocks = content.split(/\n\n+/);
+// ─── Sentiment Bar Component ───
+function SentimentBar({ bullish, bearish, label }: { bullish: number; bearish: number; label?: string }) {
+    const total = bullish + bearish;
+    const bullPct = total > 0 ? Math.round((bullish / total) * 100) : 50;
+    const bearPct = 100 - bullPct;
+    
+    return (
+        <div className="my-2 rounded-lg bg-white/[0.03] border border-border/50 p-2.5">
+            {label && <p className="text-[9px] font-semibold text-text-muted uppercase tracking-wider mb-1.5">{label}</p>}
+            <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-bold text-emerald-400 w-8">{bullPct}%</span>
+                <div className="flex-1 h-2.5 rounded-full bg-white/5 overflow-hidden flex">
+                    <div 
+                        className="h-full rounded-l-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-700"
+                        style={{ width: `${bullPct}%` }}
+                    />
+                    <div 
+                        className="h-full rounded-r-full bg-gradient-to-r from-red-500 to-red-400 transition-all duration-700"
+                        style={{ width: `${bearPct}%` }}
+                    />
+                </div>
+                <span className="text-[10px] font-bold text-red-400 w-8 text-right">{bearPct}%</span>
+            </div>
+            <div className="flex justify-between">
+                <span className="text-[9px] text-emerald-400/70">Bullish</span>
+                <span className="text-[9px] text-red-400/70">Bearish</span>
+            </div>
+        </div>
+    );
+}
 
-    return blocks.map((block, bi) => {
+// ─── Metric Pill Component ───
+function MetricPill({ label, value, positive }: { label: string; value: string; positive?: boolean }) {
+    return (
+        <div className="inline-flex items-center gap-1.5 bg-white/[0.04] border border-border/40 rounded-lg px-2 py-1 mr-1.5 mb-1">
+            <span className="text-[9px] text-text-muted uppercase">{label}</span>
+            <span className={`text-[10px] font-bold font-mono ${positive === true ? "text-emerald-400" : positive === false ? "text-red-400" : "text-text-main"}`}>
+                {value}
+            </span>
+        </div>
+    );
+}
+
+// ─── Score Bar Component ───
+function ScoreBar({ label, score, max = 10 }: { label: string; score: number; max?: number }) {
+    const pct = Math.min(100, Math.max(0, (score / max) * 100));
+    const color = pct >= 70 ? "from-emerald-500 to-emerald-400" : pct >= 40 ? "from-amber-500 to-amber-400" : "from-red-500 to-red-400";
+    
+    return (
+        <div className="my-1.5">
+            <div className="flex items-center justify-between mb-0.5">
+                <span className="text-[9px] text-text-muted">{label}</span>
+                <span className="text-[10px] font-bold text-text-main font-mono">{score}/{max}</span>
+            </div>
+            <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                <div className={`h-full rounded-full bg-gradient-to-r ${color} transition-all duration-700`} style={{ width: `${pct}%` }} />
+            </div>
+        </div>
+    );
+}
+
+// ─── Parse and render interactive elements from AI response text ───
+export function formatAIResponse(content: string): React.ReactNode {
+    // First, extract any structured data patterns and replace with placeholders
+    const elements: React.ReactNode[] = [];
+    let processedContent = content;
+    
+    // Detect sentiment patterns: "bullish: X%" / "bearish: X%" or "X% bullish"
+    const sentimentMatch = content.match(/(?:sentiment|outlook|signal)[:\s]*(?:.*?)(\d{1,3})\s*%\s*(?:bullish|positive)/i)
+        || content.match(/(\d{1,3})\s*%\s*(?:bullish|positive)/i);
+    const bearishMatch = content.match(/(\d{1,3})\s*%\s*(?:bearish|negative)/i);
+    
+    if (sentimentMatch) {
+        const bullPct = parseInt(sentimentMatch[1]);
+        const bearPct = bearishMatch ? parseInt(bearishMatch[1]) : (100 - bullPct);
+        elements.push(
+            <SentimentBar key="sentiment" bullish={bullPct} bearish={bearPct} label="Sentiment Analysis" />
+        );
+    }
+    
+    // Detect score-like patterns: "overall score: 7/10" or "rating: 8/10"
+    const scoreMatches = [...content.matchAll(/(?:(?:overall|earnings|financial|risk)\s*)?(?:score|rating|grade)[:\s]*(\d{1,2})\/(\d{1,2})/gi)];
+    if (scoreMatches.length > 0) {
+        elements.push(
+            <div key="scores" className="my-2 rounded-lg bg-white/[0.03] border border-border/50 p-2.5">
+                <p className="text-[9px] font-semibold text-text-muted uppercase tracking-wider mb-1">Ratings</p>
+                {scoreMatches.map((m, i) => {
+                    const label = m[0].split(/[:\d]/)[0].trim() || "Score";
+                    return <ScoreBar key={i} label={label} score={parseInt(m[1])} max={parseInt(m[2])} />;
+                })}
+            </div>
+        );
+    }
+    
+    // Detect key metrics: "EPS: $X.XX", "Revenue: $XB", "Market Cap: $XB", "P/E: XX"
+    const metricPatterns = [
+        { re: /EPS[:\s]*\$?([-\d.]+)/i, label: "EPS" },
+        { re: /Revenue[:\s]*\$?([\d.]+[BMT]?)/i, label: "Revenue" },
+        { re: /Market\s*Cap[:\s]*\$?([\d.]+[BMT]?)/i, label: "Mkt Cap" },
+        { re: /P\/?E(?:\s*Ratio)?[:\s]*([\d.]+)/i, label: "P/E" },
+        { re: /(?:EPS\s*)?Surprise[:\s]*([-+]?[\d.]+%?)/i, label: "Surprise" },
+    ];
+    const foundMetrics: { label: string; value: string; positive?: boolean }[] = [];
+    for (const mp of metricPatterns) {
+        const m = content.match(mp.re);
+        if (m) {
+            const val = m[1];
+            const isPositive = val.startsWith("+") || (!val.startsWith("-") && parseFloat(val) > 0 && mp.label === "Surprise");
+            const isNegative = val.startsWith("-");
+            foundMetrics.push({ label: mp.label, value: val.startsWith("$") ? val : (mp.label !== "P/E" && mp.label !== "Surprise" ? `$${val}` : val), positive: isPositive ? true : isNegative ? false : undefined });
+        }
+    }
+    if (foundMetrics.length >= 2) {
+        elements.push(
+            <div key="metrics" className="my-2 flex flex-wrap">
+                {foundMetrics.map((m, i) => <MetricPill key={i} {...m} />)}
+            </div>
+        );
+    }
+    
+    // Now render the text content with markdown formatting
+    const blocks = processedContent.split(/\n\n+/);
+    const textElements = blocks.map((block, bi) => {
         const trimmed = block.trim();
         if (!trimmed) return null;
 
@@ -239,14 +356,14 @@ function formatAIResponse(content: string): React.ReactNode {
                 : level === 2
                     ? "text-xs font-bold text-text-main mt-2 mb-1"
                     : "text-xs font-semibold text-primary mt-2 mb-0.5";
-            return <div key={bi} className={className}>{inlineFormat(text)}</div>;
+            return <div key={`t-${bi}`} className={className}>{inlineFormat(text)}</div>;
         }
 
         // Bullet list
         if (/^[-*•]\s/.test(trimmed)) {
             const items = trimmed.split(/\n/).filter(l => l.trim());
             return (
-                <ul key={bi} className="space-y-0.5 my-1 ml-2">
+                <ul key={`t-${bi}`} className="space-y-0.5 my-1 ml-2">
                     {items.map((item, ii) => (
                         <li key={ii} className="flex items-start gap-1.5">
                             <span className="text-primary/60 mt-0.5 text-[8px]">●</span>
@@ -261,7 +378,7 @@ function formatAIResponse(content: string): React.ReactNode {
         if (/^\d+[.)]\s/.test(trimmed)) {
             const items = trimmed.split(/\n/).filter(l => l.trim());
             return (
-                <ol key={bi} className="space-y-0.5 my-1 ml-2">
+                <ol key={`t-${bi}`} className="space-y-0.5 my-1 ml-2">
                     {items.map((item, ii) => (
                         <li key={ii} className="flex items-start gap-1.5">
                             <span className="text-primary/60 font-mono text-[9px] mt-0.5 w-3 shrink-0">{ii + 1}.</span>
@@ -276,20 +393,27 @@ function formatAIResponse(content: string): React.ReactNode {
         if (trimmed.startsWith("```")) {
             const code = trimmed.replace(/^```\w*\n?/, "").replace(/```$/, "").trim();
             return (
-                <pre key={bi} className="bg-white/5 rounded-lg p-2 my-1 overflow-x-auto">
+                <pre key={`t-${bi}`} className="bg-white/5 rounded-lg p-2 my-1 overflow-x-auto">
                     <code className="text-[10px] font-mono text-emerald-300">{code}</code>
                 </pre>
             );
         }
 
         // Regular paragraph
-        return <p key={bi} className="my-0.5">{inlineFormat(trimmed)}</p>;
+        return <p key={`t-${bi}`} className="my-0.5">{inlineFormat(trimmed)}</p>;
     });
+
+    // Merge: text first, then interactive elements at the end
+    return (
+        <>
+            {textElements}
+            {elements.length > 0 && <div className="mt-2 border-t border-border/30 pt-2">{elements}</div>}
+        </>
+    );
 }
 
 // Handle inline formatting: bold, italic, code, bold+italic
 function inlineFormat(text: string): React.ReactNode {
-    // Split by inline patterns: ***bold italic***, **bold**, *italic*, `code`
     const parts = text.split(/(\*\*\*[^*]+\*\*\*|\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g);
     return parts.map((part, i) => {
         if (part.startsWith("***") && part.endsWith("***")) {

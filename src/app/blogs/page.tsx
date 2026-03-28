@@ -121,7 +121,7 @@ export default function BlogsPage() {
     const formatDate = (d: string) => new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
     return (
-        <DashboardLayout title="Blogs" subtitle="Share insights and analysis with the community">
+        <DashboardLayout>
             {/* Header Actions */}
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">

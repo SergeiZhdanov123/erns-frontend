@@ -16,6 +16,8 @@ export interface IUser extends Document {
     stripeCustomerId: string | null;
     stripeSubscriptionId: string | null;
     welcomeEmailSent: boolean;
+    watchlistEmailsOptOut: boolean;
+    earningsAlertsOptOut: boolean;
     // Timestamps
     createdAt: Date;
     updatedAt: Date;
@@ -66,6 +68,14 @@ const userSchema = new Schema<IUser>(
             default: undefined,
         },
         welcomeEmailSent: {
+            type: Boolean,
+            default: false,
+        },
+        watchlistEmailsOptOut: {
+            type: Boolean,
+            default: false,
+        },
+        earningsAlertsOptOut: {
             type: Boolean,
             default: false,
         },

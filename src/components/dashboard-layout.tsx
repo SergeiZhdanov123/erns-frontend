@@ -77,6 +77,16 @@ const Icons = {
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
         </svg>
     ),
+    Anomalies: () => (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+    ),
+    CapitalAnalysis: () => (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+        </svg>
+    ),
     Blog: () => (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
@@ -105,7 +115,15 @@ const sidebarItems = [
     { icon: Icons.Dashboard, label: "Dashboard", href: "/dashboard" },
     { icon: Icons.Screener, label: "Screener", href: "/screener" },
     { icon: Icons.Chart, label: "Chart", href: "/chart" },
+    { icon: Icons.CapitalAnalysis, label: "Capital Allocation", href: "/capital-allocation" },
     { icon: Icons.Calendar, label: "Earnings", href: "/earnings" },
+    {
+        icon: () => (
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m5.231 13.481L15 17.25m-4.5-15H5.625c-.621 0-1.125.504-1.125 1.125v16.5c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9zm3.75 11.625a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+            </svg>
+        ), label: "Deep Dive", href: "/earnings-deep-dive"
+    },
     { icon: Icons.Signals, label: "Signals", href: "/signals", badge: "PRO" },
     {
         icon: () => (
@@ -145,6 +163,7 @@ const sidebarItems = [
             </svg>
         ), label: "Movers", href: "/post-earnings-movers", badge: "PRO"
     },
+    { icon: Icons.Anomalies, label: "Anomalies", href: "/anomalies", badge: "PRO" },
     {
         icon: () => (
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -163,7 +182,7 @@ const sidebarItems = [
     { icon: Icons.Playground, label: "API Playground", href: "/api-playground" },
 ];
 
-export function DashboardLayout({ children, title, subtitle, headerRight }: DashboardLayoutProps) {
+export function DashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
     const { user, isLoaded, isSignedIn } = useUser();
@@ -174,9 +193,8 @@ export function DashboardLayout({ children, title, subtitle, headerRight }: Dash
 
     // Search state
     const [searchQuery, setSearchQuery] = useState("");
-    const [searchResults, setSearchResults] = useState<{ ticker: string; name: string; market: string }[]>([]);
+    const [searchResults, setSearchResults] = useState<{ label: string; href: string; badge?: string }[]>([]);
     const [searchOpen, setSearchOpen] = useState(false);
-    const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
     const searchRef = useRef<HTMLDivElement>(null);
 
     // Notifications state
@@ -211,25 +229,27 @@ export function DashboardLayout({ children, title, subtitle, headerRight }: Dash
         }
     }, [isLoaded, isSignedIn, fetchNotifications]);
 
-    // Search handler (debounced)
+    // Search handler
     const handleSearch = useCallback((query: string) => {
         setSearchQuery(query);
-        if (searchTimeout.current) clearTimeout(searchTimeout.current);
         if (!query.trim()) {
             setSearchResults([]);
             setSearchOpen(false);
             return;
         }
-        searchTimeout.current = setTimeout(async () => {
-            try {
-                const res = await fetch(`${config.apiUrl}/market/search?q=${encodeURIComponent(query)}&limit=8`);
-                const data = await res.json();
-                setSearchResults(data.results || []);
-                setSearchOpen(true);
-            } catch {
-                setSearchResults([]);
-            }
-        }, 300);
+        
+        const normalizedQuery = query.toLowerCase();
+        const results = sidebarItems.filter(item => 
+            item.label.toLowerCase().includes(normalizedQuery) || 
+            item.href.toLowerCase().includes(normalizedQuery)
+        ).map(item => ({
+            label: item.label,
+            href: item.href,
+            badge: item.badge
+        }));
+        
+        setSearchResults(results);
+        setSearchOpen(true);
     }, []);
 
     // Close dropdowns on outside click
@@ -430,11 +450,12 @@ export function DashboardLayout({ children, title, subtitle, headerRight }: Dash
                 <header className="h-16 border-b border-border bg-surface/50 backdrop-blur-sm sticky top-0 z-30 px-6 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <motion.h1
+                            key={pathname}
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             className="text-xl font-bold text-text-main"
                         >
-                            {title}
+                            {sidebarItems.find(item => item.href === pathname)?.label || (pathname === '/settings' ? 'Settings' : 'Tyche Terminal')}
                         </motion.h1>
                     </div>
 
@@ -445,7 +466,7 @@ export function DashboardLayout({ children, title, subtitle, headerRight }: Dash
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => handleSearch(e.target.value)}
-                                placeholder="Search tickers..."
+                                placeholder="Search tools & pages..."
                                 className="pl-10 pr-4 py-2 bg-background border border-border rounded-lg text-sm text-text-main placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary w-48 lg:w-64 transition-all"
                             />
                             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">
@@ -463,17 +484,17 @@ export function DashboardLayout({ children, title, subtitle, headerRight }: Dash
                                     >
                                         {searchResults.map((r, i) => (
                                             <button
-                                                key={`${r.ticker}-${i}`}
+                                                key={`${r.href}-${i}`}
                                                 onClick={() => {
-                                                    router.push(`/chart?ticker=${r.ticker}`);
+                                                    router.push(r.href);
                                                     setSearchQuery("");
                                                     setSearchOpen(false);
                                                 }}
                                                 className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-white/5 transition-colors text-left"
                                             >
-                                                <span className="text-sm font-bold text-primary font-mono w-16 shrink-0">{r.ticker}</span>
-                                                <span className="text-sm text-text-main truncate flex-1">{r.name}</span>
-                                                <span className="text-[10px] text-text-muted">{r.market}</span>
+                                                <span className="text-sm font-bold text-primary truncate min-w-[100px]">{r.label}</span>
+                                                <span className="text-[10px] text-text-muted truncate flex-1">{r.href}</span>
+                                                {r.badge && <span className="text-[8px] font-bold uppercase tracking-wider bg-cyan-500/20 text-cyan-400 px-1.5 py-0.5 rounded-full leading-none">{r.badge}</span>}
                                             </button>
                                         ))}
                                     </motion.div>
@@ -556,15 +577,6 @@ export function DashboardLayout({ children, title, subtitle, headerRight }: Dash
 
                 {/* Page Content */}
                 <div className="p-6">
-                    {subtitle && (
-                        <motion.p
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="text-text-muted mb-6"
-                        >
-                            {subtitle}
-                        </motion.p>
-                    )}
                     {children}
                 </div>
             </main>
