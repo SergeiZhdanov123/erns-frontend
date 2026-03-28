@@ -26,6 +26,9 @@ export const metadata: Metadata = {
     "algorithmic trading",
     "financial intelligence",
   ],
+  icons: {
+    icon: "/ernslogo.png",
+  },
 };
 
 export default function RootLayout({
