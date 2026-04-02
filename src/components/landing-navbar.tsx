@@ -27,7 +27,7 @@ export function LandingNavbar() {
   const shadow = useTransform(
     scrollY,
     [0, 80],
-    ["0 0 25px rgba(0,230,118,0.08), 0 0 0 transparent", "0 0 30px rgba(0,230,118,0.12), 0 4px 30px rgba(0,0,0,0.4)"]
+    ["0 0 35px rgba(0,230,118,0.15), 0 0 0 transparent", "0 0 45px rgba(0,230,118,0.22), 0 8px 30px rgba(0,0,0,0.6)"]
   );
 
   return (

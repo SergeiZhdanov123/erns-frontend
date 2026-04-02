@@ -93,6 +93,7 @@ export default function PricingPage() {
 
   return (
     <main className="min-h-screen bg-[#030303] landing-page landing-grid">
+      <div className="landing-page-lines" />
       <LandingNavbar />
 
       {/* Header */}

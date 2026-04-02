@@ -13,11 +13,11 @@ interface InteractiveGridProps {
 
 export function InteractiveGrid({
   className = "",
-  dotColor = "rgba(0, 230, 118, 0.25)",
-  lineColor = "rgba(0, 230, 118, 0.08)",
-  dotSize = 1.5,
-  gap = 45,
-  mouseRadius = 150,
+  dotColor = "rgba(0, 230, 118, 0.75)",
+  lineColor = "rgba(0, 230, 118, 0.6)",
+  dotSize = 3,
+  gap = 40,
+  mouseRadius = 400,
 }: InteractiveGridProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouseRef = useRef({ x: -1000, y: -1000 });
@@ -118,8 +118,10 @@ export function InteractiveGrid({
               ctx.beginPath();
               ctx.moveTo(a.x, a.y);
               ctx.lineTo(b.x, b.y);
-              ctx.strokeStyle = `rgba(0, 230, 118, ${lineAlpha})`;
-              ctx.lineWidth = 0.5;
+              // Fade connections between dots too based on their distance from mouse
+              const combinedT = (1 - a.dist / mouseRadius) * (1 - b.dist / mouseRadius);
+              ctx.strokeStyle = `rgba(0, 230, 118, ${lineAlpha * combinedT * 6})`;
+              ctx.lineWidth = 1.2;
               ctx.stroke();
             }
           }
@@ -133,8 +135,9 @@ export function InteractiveGrid({
             ctx.beginPath();
             ctx.moveTo(mx, my);
             ctx.lineTo(dot.x, dot.y);
-            ctx.strokeStyle = `rgba(0, 230, 118, ${t * 0.15})`;
-            ctx.lineWidth = 0.5;
+            // Use quadratic falloff (t*t) for a much smoother fade
+            ctx.strokeStyle = `rgba(0, 230, 118, ${t * t * 0.85})`;
+            ctx.lineWidth = 1.6;
             ctx.stroke();
           }
         }

@@ -130,7 +130,7 @@ function DataLine({ items, speed = 30, direction = 1 }: { items: string[]; speed
       <motion.div
         animate={{ x: direction > 0 ? [0, -50 * items.length] : [-50 * items.length, 0] }}
         transition={{ duration: speed, repeat: Infinity, ease: "linear" }}
-        className="inline-flex gap-10 font-mono text-[11px] text-white/[0.12]"
+        className="inline-flex gap-10 font-mono text-[11px] text-white/50"
       >
         {doubled.map((item, i) => <span key={i}>{item}</span>)}
       </motion.div>
@@ -168,18 +168,19 @@ export default function Home() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
-    <main className="min-h-screen bg-[#030303] overflow-x-hidden landing-page landing-grid">
+    <main className="min-h-screen overflow-x-hidden landing-page landing-grid">
+      <div className="landing-page-lines" />
       <LandingNavbar />
 
       {/* ══════════════════════════════════════════════════════
           HERO
           ══════════════════════════════════════════════════════ */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 overflow-hidden">
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 overflow-hidden bg-[#030303]">
         <InteractiveGrid />
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full bg-primary/[0.03] blur-[120px] pointer-events-none" />
         <div className="absolute bottom-1/3 right-1/4 w-[400px] h-[400px] rounded-full bg-cyan-500/[0.02] blur-[100px] pointer-events-none" />
 
-        <div className="absolute top-[18%] left-0 right-0 space-y-4 pointer-events-none z-[1]">
+        <div className="absolute top-[20%] left-0 right-0 space-y-6 pointer-events-none z-[1]">
           <DataLine items={["AAPL 232.47 +0.42%", "NVDA 875.28 +1.67%", "MSFT 411.20 -0.23%", "TSLA 248.42 +3.12%", "GOOGL 178.36 +0.89%", "META 612.77 -0.45%", "AMZN 185.07 +1.31%", "JPM 198.45 +0.78%"]} speed={45} />
           <DataLine items={["10-K FILED", "8-K EDGAR ALERT", "EPS BEAT +11.2%", "REVENUE MISS -2.1%", "GUIDANCE RAISED", "INSIDER BUY $2.4M", "SHORT INTEREST ↑12%", "ANALYST UPGRADE"]} speed={38} direction={-1} />
         </div>
@@ -245,7 +246,7 @@ export default function Home() {
 
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.75 }}
-            className="mt-28 pb-24 flex gap-10 sm:gap-14"
+            className="mt-14 pb-16 flex gap-10 sm:gap-14"
           >
             {[
               { value: 5000, suffix: "+", label: "STOCKS" },
@@ -256,7 +257,7 @@ export default function Home() {
                 <p className="text-lg sm:text-xl font-mono font-semibold text-white/60">
                   <Counter value={stat.value} prefix={stat.prefix} suffix={stat.suffix} />
                 </p>
-                <p className="mt-1 text-[10px] font-mono tracking-[0.15em] text-white/15">{stat.label}</p>
+                <p className="mt-1 text-[10px] font-mono tracking-[0.15em] text-primary">{stat.label}</p>
               </div>
             ))}
           </motion.div>
@@ -271,7 +272,7 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════
           FEATURES — 3D Tilt Cards (like pricing page)
           ══════════════════════════════════════════════════════ */}
-      <section id="features" className="relative py-28 md:py-36 px-4 sm:px-6 border-t border-white/[0.04]">
+      <section id="features" className="relative py-28 md:py-36 px-4 sm:px-6 border-t border-white/[0.04] bg-[#030303]">
         <div className="absolute top-1/2 right-0 w-[500px] h-[500px] rounded-full bg-primary/[0.015] blur-[120px] pointer-events-none" />
         <div className="max-w-5xl mx-auto relative z-10">
           <Reveal>
@@ -547,8 +548,8 @@ export default function Home() {
                 whileHover={{ y: -8, transition: { duration: 0.2 } }}
               >
                 <TiltCard className={`relative rounded-2xl border p-6 sm:p-8 h-full flex flex-col ${plan.popular
-                    ? "border-primary/30 bg-gradient-to-b from-primary/[0.08] to-transparent shadow-[0_0_60px_-10px_rgba(0,230,118,0.15)] gradient-border"
-                    : "border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12]"
+                  ? "border-primary/30 bg-gradient-to-b from-primary/[0.08] to-transparent shadow-[0_0_60px_-10px_rgba(0,230,118,0.15)] gradient-border"
+                  : "border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12]"
                   }`}>
                   {plan.popular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-black text-xs font-bold rounded-full shadow-lg shadow-primary/25">
@@ -574,8 +575,8 @@ export default function Home() {
                     <Link href="/sign-up">
                       <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                         className={`w-full py-3 rounded-xl font-semibold text-sm transition-all ${plan.popular
-                            ? "bg-primary text-black hover:shadow-[0_0_30px_rgba(0,230,118,0.4)]"
-                            : "border border-white/[0.08] text-white/50 hover:text-white/70 hover:border-primary/30 hover:bg-white/[0.04]"
+                          ? "bg-primary text-black hover:shadow-[0_0_30px_rgba(0,230,118,0.4)]"
+                          : "border border-white/[0.08] text-white/50 hover:text-white/70 hover:border-primary/30 hover:bg-white/[0.04]"
                           }`}
                       >{plan.cta}</motion.button>
                     </Link>
@@ -612,13 +613,13 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════
           FINAL CTA
           ══════════════════════════════════════════════════════ */}
-      <section className="relative py-28 md:py-36 px-4 sm:px-6 border-t border-white/[0.04] overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full bg-primary/[0.04] blur-[100px] pointer-events-none" />
+      <section className="relative py-28 md:py-36 px-4 sm:px-6 border-t border-white/[0.04] overflow-hidden bg-[#030303]">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full bg-primary/[0.06] blur-[120px] pointer-events-none" />
         <Reveal>
           <div className="max-w-2xl mx-auto text-center relative z-10">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
               Stop reacting.<br />
-              <span className="text-white/50">Start anticipating.</span>
+              <span className="text-primary text-glow">Start anticipating.</span>
             </h2>
             <p className="text-white/20 text-sm mb-10">
               14-day free trial. No credit card required.

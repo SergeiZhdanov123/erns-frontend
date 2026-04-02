@@ -348,13 +348,23 @@
 
   /* ── Landing Page: Line Background ── */
   .landing-grid {
-    background-color: #030303;
+    position: relative;
+    z-index: 0;
+  }
+  
+  /* Global landing page background lines */
+  .landing-page-lines {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
     background-image: 
-      linear-gradient(55deg, rgba(0, 230, 118, 0.05) 1px, transparent 1px),
-      linear-gradient(-35deg, rgba(0, 230, 118, 0.05) 1px, transparent 1px),
-      linear-gradient(115deg, rgba(0, 230, 118, 0.05) 1px, transparent 1px);
+      linear-gradient(55deg, rgba(0, 230, 118, 0.4) 1px, transparent 1px),
+      linear-gradient(-35deg, rgba(0, 230, 118, 0.4) 1px, transparent 1px),
+      linear-gradient(115deg, rgba(0, 230, 118, 0.4) 1px, transparent 1px);
     background-size: 160px 160px, 220px 220px, 200px 200px;
-    background-position: center center;
+    opacity: 0.6;
+    background-repeat: repeat;
   }
 
   /* ── Landing Page: Text Contrast Overrides ── */

@@ -58,7 +58,7 @@ export default function RootLayout({
           <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         </head>
         <body
-          className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}
+          className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased bg-[#030303]`}
         >
           {children}
         </body>
