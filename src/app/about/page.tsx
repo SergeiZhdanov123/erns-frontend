@@ -1,224 +1,182 @@
 "use client";
 
-import { motion } from "framer-motion";
-import Image from "next/image";
-import { Navbar } from "@/components/navbar";
+import { useRef, useState, useEffect, useCallback } from "react";
+import { motion, useInView } from "framer-motion";
+import Link from "next/link";
+import { LandingNavbar } from "@/components/landing-navbar";
 import { Footer } from "@/components/footer";
 
-const values = [
-    {
-        icon: "⚡",
-        title: "Speed is Alpha",
-        description: "In markets, milliseconds matter. Every feature we build is optimized for speed — from sub-50ms data latency to instant SEC filing parsing.",
-    },
-    {
-        icon: "🎯",
-        title: "Signal Over Noise",
-        description: "We don't overwhelm you with data. Our AI surfaces what matters — the signals that move markets — so you can focus on making decisions.",
-    },
-    {
-        icon: "🔓",
-        title: "Democratize Access",
-        description: "Institutional-grade intelligence shouldn't be locked behind $25,000/year terminals. We make Wall Street tools accessible to every trader.",
-    },
-    {
-        icon: "🛡️",
-        title: "Trust & Transparency",
-        description: "Your data is yours. We never sell personal information, and our AI models explain their reasoning — no black boxes.",
-    },
-];
+/* ── GlowCard ── */
+function GlowCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    const c = ref.current;
+    if (!c) return;
+    const r = c.getBoundingClientRect();
+    c.style.setProperty("--mouse-x", `${e.clientX - r.left}px`);
+    c.style.setProperty("--mouse-y", `${e.clientY - r.top}px`);
+  }, []);
+  return <div ref={ref} onMouseMove={handleMouseMove} className={`glow-card ${className}`}>{children}</div>;
+}
 
-const stats = [
-    { value: "5,000+", label: "Stocks Covered" },
-    { value: "15,000+", label: "Filings Parsed Daily" },
-    { value: "<50ms", label: "Data Latency" },
-    { value: "24/7", label: "Monitoring" },
+/* ── Reveal ── */
+function Reveal({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  return (
+    <motion.div ref={ref} initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] as [number, number, number, number], delay }} className={className}
+    >{children}</motion.div>
+  );
+}
+
+/* ── Animated Stat ── */
+function AnimatedStat({ value, label }: { value: string; label: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-50px" });
+  const [display, setDisplay] = useState(value);
+
+  useEffect(() => {
+    if (!inView) return;
+    const numMatch = value.match(/[\d,]+/);
+    if (!numMatch) { setDisplay(value); return; }
+    const target = parseInt(numMatch[0].replace(/,/g, ""));
+    const prefix = value.substring(0, value.indexOf(numMatch[0]));
+    const suffix = value.substring(value.indexOf(numMatch[0]) + numMatch[0].length);
+    let current = 0;
+    const inc = Math.ceil(target / 35);
+    const timer = setInterval(() => {
+      current += inc;
+      if (current >= target) { setDisplay(value); clearInterval(timer); }
+      else setDisplay(`${prefix}${current.toLocaleString()}${suffix}`);
+    }, 16);
+    return () => clearInterval(timer);
+  }, [inView, value]);
+
+  return (
+    <div ref={ref} className="text-center p-5">
+      <p className="text-xl font-bold text-white font-mono mb-1">{inView ? display : "—"}</p>
+      <p className="text-[10px] font-mono tracking-widest text-white/15 uppercase">{label}</p>
+    </div>
+  );
+}
+
+const values = [
+  { icon: "⚡", title: "Speed is Alpha", description: "Every feature optimized for speed — from sub-50ms data latency to instant SEC filing parsing. Milliseconds matter." },
+  { icon: "🎯", title: "Signal Over Noise", description: "Our AI surfaces what moves markets. No data overload — just the signals that matter, when they matter." },
+  { icon: "🔓", title: "Democratize Access", description: "Institutional-grade intelligence shouldn't cost $25k/yr. We make Wall Street tools accessible to every trader." },
+  { icon: "🛡️", title: "Trust & Transparency", description: "Your data is yours. We never sell personal information. Our AI models explain their reasoning — no black boxes." },
 ];
 
 export default function AboutPage() {
-    return (
-        <main className="min-h-screen bg-background">
-            <Navbar />
+  return (
+    <main className="min-h-screen bg-[#030303] landing-page landing-grid">
+      <LandingNavbar />
 
-            {/* Hero */}
-            <section className="pt-28 sm:pt-36 pb-16 sm:pb-24 px-4 sm:px-6 relative overflow-hidden">
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f1f1f_1px,transparent_1px),linear-gradient(to_bottom,#1f1f1f_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
-                <div className="absolute pointer-events-none blur-[140px] bg-[rgba(0,230,118,0.1)] w-[700px] h-[700px] top-[20%] left-[50%] -translate-x-1/2 -translate-y-1/2 rounded-full" />
+      {/* Hero */}
+      <section className="pt-32 sm:pt-40 pb-20 px-4 sm:px-6 relative z-10">
+        <Reveal>
+          <div className="max-w-5xl mx-auto">
+            <span className="font-mono text-[10px] text-primary/50 tracking-[0.2em] uppercase mb-3 block">About Erns</span>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 max-w-xl leading-tight">
+              Building the future of{" "}
+              <span className="text-primary text-glow">earnings intelligence.</span>
+            </h1>
+            <p className="text-white/50 text-sm max-w-lg leading-relaxed">
+              Founded on a simple belief: every trader deserves the same intelligence
+              that institutional investors use to gain an edge.
+            </p>
+          </div>
+        </Reveal>
+      </section>
 
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className="max-w-3xl mx-auto text-center relative z-10"
-                >
-                    <span className="inline-block text-primary text-xs sm:text-sm font-semibold tracking-widest uppercase mb-4 sm:mb-6">About Erns</span>
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-text-main mb-5 sm:mb-6 leading-tight">
-                        Building the Future of{" "}
-                        <span className="text-gradient-green">Earnings Intelligence</span>
-                    </h1>
-                    <p className="text-text-muted text-base sm:text-lg max-w-2xl mx-auto leading-relaxed px-2">
-                        Erns was founded on a simple belief: every trader deserves access to
-                        the same intelligence that institutional investors use to gain an edge.
-                    </p>
-                </motion.div>
-            </section>
-
-            {/* Mission */}
-            <section className="py-16 sm:py-24 px-4 sm:px-6 border-t border-white/[0.06]">
-                <div className="max-w-4xl mx-auto">
-                    <motion.div
-                        initial={{ opacity: 0, y: 15 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="grid md:grid-cols-2 gap-10 md:gap-16 items-center"
-                    >
-                        <div>
-                            <span className="text-primary text-xs sm:text-sm font-semibold tracking-widest uppercase mb-3 block">Our Mission</span>
-                            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-text-main mb-4 sm:mb-6 leading-tight">
-                                Level the Playing Field
-                            </h2>
-                            <p className="text-text-muted text-sm sm:text-base leading-relaxed mb-4">
-                                For decades, institutional investors had access to real-time SEC
-                                filing analysis, earnings intelligence, and AI-powered trading signals
-                                — tools that cost tens of thousands of dollars per year.
-                            </p>
-                            <p className="text-text-muted text-sm sm:text-base leading-relaxed">
-                                Erns changes that. We built an earnings intelligence platform that
-                                parses every SEC filing the moment it hits EDGAR, runs AI analysis
-                                to detect sentiment and surprises, and delivers actionable signals
-                                — all at a price any serious trader can afford.
-                            </p>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            {stats.map((stat, i) => (
-                                <motion.div
-                                    key={i}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ delay: i * 0.06 }}
-                                    className="p-5 rounded-xl border border-white/[0.06] bg-white/[0.02] text-center"
-                                >
-                                    <p className="text-xl sm:text-2xl font-bold text-primary font-mono mb-1">
-                                        {stat.value}
-                                    </p>
-                                    <p className="text-xs text-text-muted">{stat.label}</p>
-                                </motion.div>
-                            ))}
-                        </div>
-                    </motion.div>
+      {/* Mission + Stats */}
+      <section className="py-16 sm:py-24 px-4 sm:px-6 border-t border-white/[0.04] relative z-10">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12 items-start">
+            <Reveal>
+              <div>
+                <span className="font-mono text-[10px] text-primary/50 tracking-[0.2em] uppercase mb-3 block">Our Mission</span>
+                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">Level the playing field.</h2>
+                <div className="space-y-4 text-sm text-white/50 leading-relaxed">
+                  <p>
+                    For decades, institutional investors had access to real-time SEC
+                    filing analysis, earnings intelligence, and AI-powered trading signals
+                    — tools that cost tens of thousands of dollars per year.
+                  </p>
+                  <p>
+                    Erns changes that. We parse every filing the moment it hits EDGAR,
+                    run AI analysis to detect sentiment and surprises, and deliver
+                    actionable signals — at a price any serious trader can afford.
+                  </p>
                 </div>
-            </section>
+              </div>
+            </Reveal>
 
-            {/* Founder */}
-            <section className="py-16 sm:py-24 px-4 sm:px-6 border-t border-white/[0.06]">
-                <div className="max-w-4xl mx-auto">
-                    <motion.div
-                        initial={{ opacity: 0, y: 15 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="text-center mb-10 sm:mb-14"
-                    >
-                        <span className="text-primary text-xs sm:text-sm font-semibold tracking-widest uppercase mb-3 block">Leadership</span>
-                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-text-main">
-                            Meet the Founder
-                        </h2>
-                    </motion.div>
+            <Reveal delay={0.1}>
+              <div className="grid grid-cols-2 gap-px bg-white/[0.06] rounded-xl overflow-hidden">
+                {[
+                  { value: "5,000+", label: "Stocks" },
+                  { value: "15,000+", label: "Filings/Day" },
+                  { value: "<50ms", label: "Latency" },
+                  { value: "24/7", label: "Monitoring" },
+                ].map((stat, i) => (
+                  <div key={i} className="bg-[#060606]">
+                    <AnimatedStat value={stat.value} label={stat.label} />
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
 
-                    <motion.div
-                        initial={{ opacity: 0, y: 15 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="flex flex-col md:flex-row items-center gap-8 md:gap-12 max-w-2xl mx-auto"
-                    >
-                        <div className="flex-shrink-0">
-                            <div className="relative w-40 h-40 sm:w-48 sm:h-48 rounded-2xl overflow-hidden border-2 border-primary/30 shadow-[0_0_40px_-10px_rgba(0,230,118,0.3)]">
-                                <Image
-                                    src="/sergei.png"
-                                    alt="Sergei Zhdanov — CEO & Founder"
-                                    fill
-                                    className="object-cover"
-                                />
-                            </div>
-                        </div>
-                        <div className="text-center md:text-left">
-                            <h3 className="text-xl sm:text-2xl font-bold text-text-main mb-1">
-                                Sergei Zhdanov
-                            </h3>
-                            <p className="text-primary font-semibold text-sm mb-4">CEO & Founder</p>
-                            <p className="text-text-muted text-sm leading-relaxed">
-                                Sergei built Erns with a vision to make institutional-grade financial
-                                intelligence accessible to every trader. With a deep passion for
-                                markets, data engineering, and AI, he designed the platform from the
-                                ground up to deliver real-time earnings analysis, SEC filing parsing,
-                                and AI-powered trading signals at unprecedented speed.
-                            </p>
-                        </div>
-                    </motion.div>
-                </div>
-            </section>
+      {/* Values — 2x2 grid with GlowCards */}
+      <section className="py-16 sm:py-24 px-4 sm:px-6 border-t border-white/[0.04] relative z-10">
+        <div className="max-w-5xl mx-auto">
+          <Reveal>
+            <span className="font-mono text-[10px] text-primary/50 tracking-[0.2em] uppercase mb-3 block">Our Values</span>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-10">What drives us.</h2>
+          </Reveal>
 
-            {/* Values */}
-            <section className="py-16 sm:py-24 px-4 sm:px-6 border-t border-white/[0.06]">
-                <div className="max-w-5xl mx-auto">
-                    <motion.div
-                        initial={{ opacity: 0, y: 15 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="text-center mb-10 sm:mb-14"
-                    >
-                        <span className="text-primary text-xs sm:text-sm font-semibold tracking-widest uppercase mb-3 block">Our Values</span>
-                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-text-main">
-                            What Drives Us
-                        </h2>
-                    </motion.div>
-
-                    <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
-                        {values.map((val, i) => (
-                            <motion.div
-                                key={i}
-                                initial={{ opacity: 0, y: 15 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: i * 0.06 }}
-                                className="p-6 sm:p-8 rounded-2xl border border-white/[0.06] bg-white/[0.02] hover:border-primary/20 transition-all"
-                            >
-                                <div className="text-2xl sm:text-3xl mb-4">{val.icon}</div>
-                                <h3 className="text-lg font-bold text-text-main mb-2">{val.title}</h3>
-                                <p className="text-text-muted text-sm leading-relaxed">{val.description}</p>
-                            </motion.div>
-                        ))}
+          <div className="grid sm:grid-cols-2 gap-px bg-white/[0.06] rounded-xl overflow-hidden">
+            {values.map((val, i) => (
+              <Reveal key={i} delay={i * 0.06}>
+                <GlowCard className="bg-[#060606] p-6 sm:p-8 h-full group hover:bg-[#0a0a0a] transition-all duration-300">
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-9 h-9 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-sm group-hover:border-primary/20 group-hover:bg-primary/[0.05] transition-colors">
+                        {val.icon}
+                      </div>
+                      <h3 className="text-base font-semibold text-white group-hover:text-primary transition-colors">{val.title}</h3>
                     </div>
-                </div>
-            </section>
+                    <p className="text-sm text-white/40 leading-relaxed group-hover:text-white transition-colors">{val.description}</p>
+                  </div>
+                </GlowCard>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            {/* CTA */}
-            <section className="py-16 sm:py-24 px-4 sm:px-6 border-t border-white/[0.06] bg-surface/30">
-                <motion.div
-                    initial={{ opacity: 0, y: 15 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className="max-w-2xl mx-auto text-center"
-                >
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-text-main mb-4">
-                        Ready to trade with an edge?
-                    </h2>
-                    <p className="text-text-muted mb-8 px-2">
-                        Start using Erns for real-time earnings intelligence.
-                    </p>
-                    <a href="/sign-up">
-                        <motion.button
-                            whileHover={{ scale: 1.03, boxShadow: "0 0 50px rgba(0,230,118,0.4)" }}
-                            whileTap={{ scale: 0.97 }}
-                            className="px-10 py-4 bg-primary text-primary-foreground rounded-xl font-semibold shadow-[0_0_30px_-5px_rgba(0,230,118,0.4)] transition-all"
-                        >
-                            Get Started Free →
-                        </motion.button>
-                    </a>
-                </motion.div>
-            </section>
+      {/* CTA */}
+      <section className="py-24 px-4 sm:px-6 border-t border-white/[0.04] relative z-10">
+        <Reveal>
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">Ready to trade with an edge?</h2>
+            <p className="text-white/25 text-sm mb-8">14-day free trial. No credit card required.</p>
+            <Link href="/sign-up">
+              <motion.button whileHover={{ scale: 1.03, boxShadow: "0 0 50px rgba(0,230,118,0.3)" }} whileTap={{ scale: 0.97 }}
+                className="px-8 py-3 bg-primary text-black rounded-lg font-semibold text-sm transition-all"
+              >
+                Get Started Free →
+              </motion.button>
+            </Link>
+          </div>
+        </Reveal>
+      </section>
 
-            <Footer />
-        </main>
-    );
+      <div className="relative z-10"><Footer /></div>
+    </main>
+  );
 }

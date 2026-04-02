@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useUser } from "@clerk/nextjs";
 import { config } from "@/lib/config";
 import Link from "next/link";
 
@@ -42,6 +43,8 @@ interface MonitorSlot {
 
 export default function LiveEarningsPage() {
     const { isPro, isEnterprise, isPaid, loading: subLoading } = useSubscription();
+    const { user } = useUser();
+    const userEmail = user?.primaryEmailAddress?.emailAddress;
     const [slots, setSlots] = useState<MonitorSlot[]>([]);
     const [isHydrated, setIsHydrated] = useState(false);
     const [tickerInput, setTickerInput] = useState("");
@@ -151,7 +154,16 @@ export default function LiveEarningsPage() {
             intervalsRef.current.delete(ticker);
         }
         setSlots(prev => prev.filter(s => s.ticker !== ticker));
-    }, []);
+
+        // Tell backend to stop monitoring so the worker doesn't keep checking
+        if (userEmail) {
+            fetch(`${config.apiUrl}/earnings/stop-monitor`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ticker, user_email: userEmail }),
+            }).catch(() => { /* best-effort */ });
+        }
+    }, [userEmail]);
 
     // Cleanup on unmount
     useEffect(() => {

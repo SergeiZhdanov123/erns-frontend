@@ -276,6 +276,97 @@
   .text-loss {
     color: var(--loss);
   }
+
+  /* ── Landing Page: Cursor-tracking glow card ── */
+  .glow-card {
+    position: relative;
+    overflow: hidden;
+  }
+  .glow-card::before {
+    content: "";
+    position: absolute;
+    top: var(--mouse-y, 50%);
+    left: var(--mouse-x, 50%);
+    width: 400px;
+    height: 400px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(0,230,118,0.15) 0%, transparent 70%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+  }
+  .glow-card:hover::before {
+    opacity: 1;
+  }
+  .glow-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Landing Page: 3D tilt card ── */
+  .tilt-card {
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    transition: transform 0.15s ease-out;
+  }
+
+  /* ── Landing Page: Animated gradient border ── */
+  .gradient-border {
+    position: relative;
+    background: var(--surface);
+    z-index: 0;
+  }
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(
+      from var(--border-angle, 0deg),
+      transparent 25%,
+      #00E676 50%,
+      transparent 75%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: border-rotate 4s linear infinite;
+  }
+
+  @keyframes border-rotate {
+    to { --border-angle: 360deg; }
+  }
+
+  /* ── Landing Page: Magnetic button ── */
+  .magnetic-btn {
+    transition: transform 0.2s ease-out;
+  }
+
+  /* ── Landing Page: Line Background ── */
+  .landing-grid {
+    background-color: #030303;
+    background-image: 
+      linear-gradient(55deg, rgba(0, 230, 118, 0.05) 1px, transparent 1px),
+      linear-gradient(-35deg, rgba(0, 230, 118, 0.05) 1px, transparent 1px),
+      linear-gradient(115deg, rgba(0, 230, 118, 0.05) 1px, transparent 1px);
+    background-size: 160px 160px, 220px 220px, 200px 200px;
+    background-position: center center;
+  }
+
+  /* ── Landing Page: Text Contrast Overrides ── */
+  .landing-page h1, 
+  .landing-page h2, 
+  .landing-page h3 {
+    color: #ffffff !important;
+  }
+  
+  .landing-page .text-primary-headline {
+    color: var(--primary) !important;
+  }
 }
 
 /* Custom Scrollbar - Dark Terminal Theme */

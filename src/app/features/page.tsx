@@ -1,217 +1,217 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef, useCallback } from "react";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 import Link from "next/link";
-import { Navbar } from "@/components/navbar";
+import { LandingNavbar } from "@/components/landing-navbar";
 import { Footer } from "@/components/footer";
 
+/* ── GlowCard ── */
+function GlowCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    const c = ref.current;
+    if (!c) return;
+    const r = c.getBoundingClientRect();
+    c.style.setProperty("--mouse-x", `${e.clientX - r.left}px`);
+    c.style.setProperty("--mouse-y", `${e.clientY - r.top}px`);
+  }, []);
+  return (
+    <div ref={ref} onMouseMove={handleMouseMove} className={`glow-card ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+/* ── Reveal ── */
+function Reveal({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  return (
+    <motion.div ref={ref} initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] as [number, number, number, number], delay }} className={className}
+    >{children}</motion.div>
+  );
+}
+
 const features = [
-    {
-        title: "Stock Screener",
-        description: "Filter thousands of stocks with advanced criteria including fundamentals, technicals, and custom indicators.",
-        details: "Our proprietary screener processes over 150 datapoints across 5,000+ US equities. Filter dynamically by upcoming earnings dates, relative volume surges, and DeepSeek AI sentiment scores to instantly find asymmetric setups before the market reacts.",
-        icon: (
-            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
-            </svg>
-        ),
-        visual: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&q=80&w=800",
-    },
-    {
-        title: "Earnings Calendar",
-        description: "Never miss an earnings announcement. Track estimates, surprises, and historical performance.",
-        details: "Navigate earnings season with confidence. The integrated calendar aggregates BMO/AMC drop times from multiple institutional sources, allowing you to track expected vs. historical surprises, forward guidance revisions, and post-market movers.",
-        icon: (
-            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-            </svg>
-        ),
-        visual: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800",
-    },
-    {
-        title: "AI Trading Signals",
-        description: "Machine learning models analyze SEC filings, options flow, and insider activity to generate actionable signals.",
-        details: "Our intelligence engine instantly parses raw SEC and press release texts using DeepSeek AI models to gauge immediate institutional sentiment. Stop waiting on legacy analyst upgrades and trade directly off the source truth.",
-        icon: (
-            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-            </svg>
-        ),
-        visual: "https://images.unsplash.com/photo-1620912189868-30778f9024c5?auto=format&fit=crop&q=80&w=800",
-    },
-    {
-        title: "SEC Filings",
-        description: "Real-time access to 10-K, 10-Q, 8-K, and 13F filings with sub-50ms latency.",
-        details: "Bypass the clunky EDGAR interface. Get instantly alerted and view cleanly parsed 8-K and 10-K reports seconds after they cross the wire. Time is your greatest edge when trading volatility events.",
-        icon: (
-            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-            </svg>
-        ),
-        visual: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=800",
-    },
-    {
-        title: "Watchlist & Alerts",
-        description: "Track your favorite stocks and get notified when they hit your price targets or trigger signals.",
-        details: "Our 24/7 background worker continually monitors the Investor Relation hubs of your bookmarked watchlists. The second an earnings event or press release drops, you'll get an unmissable email alert directly in your inbox.",
-        icon: (
-            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-            </svg>
-        ),
-        visual: "https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&q=80&w=800",
-    },
-    {
-        title: "Developer API",
-        description: "RESTful API and WebSocket feeds for programmatic access to all our data and signals.",
-        details: "Integrate Erns directly into your existing command center. Create and manage granular API keys from your dashboard to stream enterprise-grade aggregated financial endpoints directly to your custom bot or trading script.",
-        icon: (
-            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
-            </svg>
-        ),
-        visual: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800",
-    },
+  {
+    title: "Stock Screener",
+    description: "Filter thousands of stocks with advanced criteria including fundamentals, technicals, and custom indicators.",
+    details: "Our proprietary screener processes over 150 datapoints across 5,000+ US equities. Filter dynamically by upcoming earnings dates, relative volume surges, and DeepSeek AI sentiment scores.",
+    icon: "📊",
+    span: "lg:col-span-2",
+  },
+  {
+    title: "Earnings Calendar",
+    description: "Never miss an earnings announcement. Track estimates, surprises, and historical performance.",
+    details: "Navigate earnings season with confidence. The integrated calendar aggregates BMO/AMC drop times from multiple institutional sources.",
+    icon: "📅",
+    span: "",
+  },
+  {
+    title: "AI Trading Signals",
+    description: "Machine learning models analyze SEC filings, options flow, and insider activity.",
+    details: "Our intelligence engine instantly parses raw SEC and press release texts using DeepSeek AI models to gauge immediate institutional sentiment.",
+    icon: "⚡",
+    span: "",
+  },
+  {
+    title: "SEC Filings",
+    description: "Real-time access to 10-K, 10-Q, 8-K, and 13F filings with sub-50ms latency.",
+    details: "Bypass the clunky EDGAR interface. Get instantly alerted and view cleanly parsed reports seconds after they cross the wire.",
+    icon: "📄",
+    span: "lg:col-span-2",
+  },
+  {
+    title: "Watchlist & Alerts",
+    description: "Track your favorite stocks and get notified on filings, earnings, and anomalies.",
+    details: "Our 24/7 background worker continually monitors the IR hubs of your watchlist. Instant email alerts when events drop.",
+    icon: "🔔",
+    span: "",
+  },
+  {
+    title: "Developer API",
+    description: "RESTful API and WebSocket feeds for programmatic access to all data and signals.",
+    details: "Integrate Erns directly into your stack. Create API keys from your dashboard to stream enterprise-grade endpoints.",
+    icon: "⌨️",
+    span: "",
+  },
 ];
 
-type FeatureDef = typeof features[0];
+type Feature = (typeof features)[0];
 
 export default function FeaturesPage() {
-    const [selectedFeature, setSelectedFeature] = useState<FeatureDef | null>(null);
+  const [selected, setSelected] = useState<Feature | null>(null);
 
-    return (
-        <main className="min-h-screen bg-background relative">
-            <Navbar />
+  return (
+    <main className="min-h-screen bg-[#030303] landing-page landing-grid">
+      <LandingNavbar />
 
-            {/* Hero */}
-            <section className="pt-32 pb-16 px-6">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="max-w-4xl mx-auto text-center"
-                >
-                    <h1 className="text-4xl md:text-5xl font-bold text-text-main mb-4">
-                        Powerful <span className="text-primary">Features</span>
-                    </h1>
-                    <p className="text-text-muted text-lg max-w-2xl mx-auto">
-                        Everything you need to gain an edge in the market. Real-time data, AI-powered signals, and institutional-grade tools.
-                    </p>
-                </motion.div>
-            </section>
+      {/* Hero */}
+      <section className="pt-32 sm:pt-40 pb-20 px-6 relative z-10">
+        <Reveal>
+          <div className="max-w-5xl mx-auto">
+            <span className="font-mono text-[10px] text-primary/50 tracking-[0.2em] uppercase mb-3 block">Platform Features</span>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 max-w-xl">
+              Powerful features.<br />
+              <span className="text-primary text-glow">Zero noise.</span>
+            </h1>
+            <p className="text-white/50 text-sm max-w-lg leading-relaxed">
+              Everything you need to gain an edge. Real-time data, AI-powered signals, and institutional-grade tools.
+            </p>
+          </div>
+        </Reveal>
+      </section>
 
-            {/* Features Grid */}
-            <section className="pb-24 px-6">
-                <div className="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {features.map((feature, i) => (
-                        <motion.div
-                            key={feature.title}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            className="group p-6 bg-surface border border-border rounded-xl hover:border-primary/30 transition-all flex flex-col items-start"
-                        >
-                            <div className="w-14 h-14 mb-4 rounded-xl bg-primary-dim/50 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                                {feature.icon}
-                            </div>
-                            <h3 className="text-lg font-semibold text-text-main mb-2">{feature.title}</h3>
-                            <p className="text-text-muted text-sm mb-6 flex-1">{feature.description}</p>
-                            
-                            <button
-                                onClick={() => setSelectedFeature(feature)}
-                                className="px-4 py-2 border border-border rounded-lg text-sm text-text-main hover:bg-white/5 transition-colors font-medium"
-                            >
-                                Learn More
-                            </button>
-                        </motion.div>
-                    ))}
+      {/* Feature grid — 3-box pattern */}
+      <section className="pb-24 px-6 relative z-10">
+        <div className="max-w-5xl mx-auto">
+          {/* Top row */}
+          <div className="grid md:grid-cols-3 gap-px bg-white/[0.06] rounded-xl overflow-hidden mb-px">
+            {features.slice(0, 3).map((feature, i) => (
+              <Reveal key={feature.title} delay={i * 0.06}>
+                <GlowCard className={`bg-[#060606] p-6 sm:p-8 h-full group hover:bg-[#0a0a0a] transition-all duration-300 cursor-pointer`}>
+                  <div className="relative z-10 flex flex-col h-full" onClick={() => setSelected(feature)}>
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-9 h-9 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-sm group-hover:border-primary/20 group-hover:bg-primary/[0.05] transition-colors">
+                        {feature.icon}
+                      </div>
+                      <h3 className="text-base font-semibold text-white group-hover:text-primary transition-colors">{feature.title}</h3>
+                    </div>
+                    <p className="text-sm text-white/40 leading-relaxed group-hover:text-white transition-colors flex-1 mb-4">{feature.description}</p>
+                    <span className="text-[11px] text-white/15 group-hover:text-primary/40 transition-colors font-mono">
+                      Learn more →
+                    </span>
+                  </div>
+                </GlowCard>
+              </Reveal>
+            ))}
+          </div>
+          {/* Bottom row */}
+          <div className="grid md:grid-cols-3 gap-px bg-white/[0.06] rounded-xl overflow-hidden">
+            {features.slice(3, 6).map((feature, i) => (
+              <Reveal key={feature.title} delay={0.2 + i * 0.06}>
+                <GlowCard className={`bg-[#060606] p-6 sm:p-8 h-full group hover:bg-[#0a0a0a] transition-all duration-300 cursor-pointer`}>
+                  <div className="relative z-10 flex flex-col h-full" onClick={() => setSelected(feature)}>
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-9 h-9 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-sm group-hover:border-primary/20 group-hover:bg-primary/[0.05] transition-colors">
+                        {feature.icon}
+                      </div>
+                      <h3 className="text-base font-semibold text-white group-hover:text-primary transition-colors">{feature.title}</h3>
+                    </div>
+                    <p className="text-sm text-white/40 leading-relaxed group-hover:text-white transition-colors flex-1 mb-4">{feature.description}</p>
+                    <span className="text-[11px] text-white/15 group-hover:text-primary/40 transition-colors font-mono">
+                      Learn more →
+                    </span>
+                  </div>
+                </GlowCard>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-24 px-6 border-t border-white/[0.04] relative z-10">
+        <Reveal>
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+              Ready to get started?
+            </h2>
+            <p className="text-white/25 text-sm mb-8">
+              14-day free trial. No credit card required.
+            </p>
+            <Link href="/sign-up">
+              <motion.button whileHover={{ scale: 1.03, boxShadow: "0 0 50px rgba(0,230,118,0.3)" }} whileTap={{ scale: 0.97 }}
+                className="px-8 py-3 bg-primary text-black rounded-lg font-semibold text-sm transition-all"
+              >
+                Start Free Trial
+              </motion.button>
+            </Link>
+          </div>
+        </Reveal>
+      </section>
+
+      <div className="relative z-10"><Footer /></div>
+
+      {/* Feature Detail Modal */}
+      <AnimatePresence>
+        {selected && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+            onClick={() => setSelected(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 15 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 15 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-[#0a0a0a] border border-white/[0.08] rounded-xl overflow-hidden max-w-md w-full"
+            >
+              <div className="p-6">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-9 h-9 rounded-lg bg-primary/[0.06] border border-primary/20 flex items-center justify-center text-sm">
+                    {selected.icon}
+                  </div>
+                  <h3 className="text-lg font-bold text-white">{selected.title}</h3>
                 </div>
-            </section>
-
-            {/* CTA */}
-            <section className="py-24 px-6 border-t border-border bg-surface/30">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className="max-w-3xl mx-auto text-center"
-                >
-                    <h2 className="text-3xl font-bold text-text-main mb-4">
-                        Ready to get started?
-                    </h2>
-                    <p className="text-text-muted mb-8">
-                        Start your 14-day free trial. No credit card required.
-                    </p>
-                    <Link href="/sign-up">
-                        <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className="px-8 py-4 bg-primary text-primary-foreground rounded-lg font-semibold hover:shadow-[0_0_30px_rgba(0,230,118,0.4)] transition-all"
-                        >
-                            Start Free Trial
-                        </motion.button>
-                    </Link>
-                </motion.div>
-            </section>
-
-            <Footer />
-
-            <AnimatePresence>
-                {selectedFeature && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
-                        onClick={() => setSelectedFeature(null)}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="bg-surface border border-border rounded-2xl overflow-hidden max-w-2xl w-full shadow-2xl"
-                        >
-                            <div className="h-48 sm:h-64 w-full relative">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                    src={selectedFeature.visual}
-                                    alt={selectedFeature.title}
-                                    className="w-full h-full object-cover"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent" />
-                                <div className="absolute bottom-4 left-6 flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-lg bg-primary/20 backdrop-blur-md flex items-center justify-center text-primary border border-primary/30">
-                                        {selectedFeature.icon}
-                                    </div>
-                                    <h3 className="text-2xl font-bold text-white drop-shadow-lg">{selectedFeature.title}</h3>
-                                </div>
-                            </div>
-                            
-                            <div className="p-6">
-                                <h4 className="text-primary font-medium text-sm mb-2 uppercase tracking-wider">Feature Deep Dive</h4>
-                                <p className="text-text-muted leading-relaxed mb-6">
-                                    {selectedFeature.details}
-                                </p>
-                                
-                                <div className="flex justify-end gap-3 pt-6 border-t border-border/50">
-                                    <button
-                                        onClick={() => setSelectedFeature(null)}
-                                        className="px-5 py-2.5 rounded-lg text-text-muted hover:bg-white/5 transition-colors font-medium border border-transparent"
-                                    >
-                                        Close
-                                    </button>
-                                    <Link href="/select-plan">
-                                        <button className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
-                                            Start Free Trial
-                                        </button>
-                                    </Link>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </main>
-    );
+                <p className="text-white/30 leading-relaxed text-sm mb-6">{selected.details}</p>
+                <div className="flex justify-end gap-3 pt-5 border-t border-white/[0.06]">
+                  <button onClick={() => setSelected(null)}
+                    className="px-4 py-2 text-white/30 hover:text-white/50 transition-colors text-sm font-medium"
+                  >Close</button>
+                  <Link href="/sign-up">
+                    <button className="px-4 py-2 bg-primary text-black rounded-lg font-medium text-sm hover:bg-primary/90 transition-colors">
+                      Start Free Trial
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </main>
+  );
 }
