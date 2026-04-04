@@ -41,7 +41,7 @@ export function ProGate({ children, feature = "This feature" }: ProGateProps) {
                     href="/select-plan"
                     className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-primary text-white rounded-xl font-semibold hover:opacity-90 transition-opacity"
                 >
-                    Upgrade to Pro — $49/mo
+                    Upgrade to Pro — $10/mo
                 </Link>
                 <p className="text-[10px] text-text-muted/30 mt-3">14-day free trial included</p>
             </motion.div>

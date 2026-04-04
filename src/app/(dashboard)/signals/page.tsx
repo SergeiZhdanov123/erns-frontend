@@ -73,13 +73,19 @@ export default function SignalsPage() {
     const { tickers: watchlistTickers, loading: wlLoading } = useWatchlist(
         clerkUser?.primaryEmailAddress?.emailAddress
     );
-    const analysisTickers = watchlistTickers.length > 0 ? watchlistTickers : DEFAULT_TICKERS;
+    const analysisTickers = watchlistTickers;
 
     const fetchSignals = useCallback(async () => {
         setLoading(true);
         setError(null);
 
         try {
+            if (analysisTickers.length === 0) {
+                setSignals([]);
+                setLoading(false);
+                return;
+            }
+
             const tickerList = analysisTickers.join(", ");
             const signalCount = analysisTickers.length;
 
@@ -446,7 +452,16 @@ Keep it under 400 words. Dense with data, zero fluff.`
 
                         {filteredSignals.length === 0 && (
                             <div className="col-span-2 text-center py-12">
-                                <p className="text-sm text-text-muted">No signals match your filters</p>
+                                {analysisTickers.length === 0 ? (
+                                    <>
+                                        <p className="text-sm font-bold text-text-main mb-2">Your Watchlist is Empty</p>
+                                        <p className="text-xs text-text-muted max-w-sm mx-auto">
+                                            Signals require a working watchlist. Please navigate to the Dashboard or Watchlist tab to add stocks you want the AI to analyze.
+                                        </p>
+                                    </>
+                                ) : (
+                                    <p className="text-sm text-text-muted">No signals match your filters</p>
+                                )}
                             </div>
                         )}
                     </motion.div>
