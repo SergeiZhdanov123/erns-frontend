@@ -9,7 +9,7 @@ import Link from "next/link";
 // ─── Types ──────────────────────────────────────────────────
 interface ParamDef {
     name: string;
-    type: "path" | "query";
+    type: "path" | "query" | "body";
     required?: boolean;
     description: string;
     placeholder?: string;
@@ -330,6 +330,24 @@ const ENDPOINTS: CategoryDef[] = [
                     { name: "limit", type: "query", description: "Max results (1–50)", default: "10" },
                 ],
             },
+            {
+                method: "GET",
+                path: "/market/ipos",
+                description: "Real-time IPO calendar",
+                params: [],
+            },
+            {
+                method: "POST",
+                path: "/market/ipos/analyze",
+                description: "AI IPO Deep Dive Analysis",
+                params: [
+                    { name: "symbol", type: "body", required: true, description: "Stock ticker", placeholder: "TMCR" },
+                    { name: "name", type: "body", required: true, description: "Company name", placeholder: "The Metals Royalty" },
+                    { name: "price", type: "body", required: true, description: "Expected price", placeholder: "10.00" },
+                    { name: "shares", type: "body", required: true, description: "Shares offered", placeholder: "50M" },
+                    { name: "value", type: "body", required: true, description: "Deal value", placeholder: "500M" },
+                ],
+            },
         ],
     },
 ];
@@ -364,11 +382,12 @@ export default function ApiPlaygroundPage() {
         const queryParams: string[] = [];
 
         endpoint.params.forEach((p) => {
+            if (p.type === "body") return;
             const val = paramValues[p.name] || p.default || "";
             if (!val) return;
             if (p.type === "path") {
                 path = path.replace(`{${p.name}}`, encodeURIComponent(val));
-            } else {
+            } else if (p.type === "query") {
                 queryParams.push(`${p.name}=${encodeURIComponent(val)}`);
             }
         });
@@ -377,16 +396,35 @@ export default function ApiPlaygroundPage() {
         return `${API_BASE}${path}${qs}`;
     }, [endpoint, paramValues]);
 
+    const getBodyParams = useCallback(() => {
+        const bodyParams: Record<string, string> = {};
+        endpoint.params.forEach(p => {
+            if (p.type === "body") {
+                bodyParams[p.name] = paramValues[p.name] || p.default || "";
+            }
+        });
+        return bodyParams;
+    }, [endpoint, paramValues]);
+
     const executeRequest = async () => {
-        // Enforce Starter limit
-        if (isStarter && starterRequestCount >= 5) return;
+        // Enforce Starter limit strictly
+        if (isStarter) return;
         setLoading(true);
         setResponse(null);
         setStatus(null);
         const t0 = performance.now();
 
         try {
-            const res = await fetch(buildUrl());
+            const fetchOptions: RequestInit = { method: endpoint.method };
+            if (endpoint.method !== "GET") {
+                const bodyParams = getBodyParams();
+                if (Object.keys(bodyParams).length > 0) {
+                    fetchOptions.headers = { "Content-Type": "application/json" };
+                    fetchOptions.body = JSON.stringify(bodyParams);
+                }
+            }
+
+            const res = await fetch(buildUrl(), fetchOptions);
             const t1 = performance.now();
             setElapsed(Math.round(t1 - t0));
             setStatus(res.status);
@@ -408,12 +446,24 @@ export default function ApiPlaygroundPage() {
 
     const generateCode = () => {
         const url = buildUrl();
+        const bodyParams = getBodyParams();
+        const hasBody = Object.keys(bodyParams).length > 0 && endpoint.method !== "GET";
+
         switch (codeTab) {
             case "curl":
+                if (hasBody) {
+                    return `curl -X ${endpoint.method} "${url}" \\\n  -H "Content-Type: application/json" \\\n  -d '${JSON.stringify(bodyParams)}'`;
+                }
                 return `curl "${url}"`;
             case "python":
+                if (hasBody) {
+                    return `import requests\n\nresponse = requests.${endpoint.method.toLowerCase()}("${url}", json=${JSON.stringify(bodyParams)})\ndata = response.json()\nprint(data)`;
+                }
                 return `import requests\n\nresponse = requests.get("${url}")\ndata = response.json()\nprint(data)`;
             case "javascript":
+                if (hasBody) {
+                    return `const response = await fetch("${url}", {\n  method: "${endpoint.method}",\n  headers: { "Content-Type": "application/json" },\n  body: JSON.stringify(${JSON.stringify(bodyParams)})\n});\nconst data = await response.json();\nconsole.log(data);`;
+                }
                 return `const response = await fetch("${url}");\nconst data = await response.json();\nconsole.log(data);`;
         }
     };
@@ -443,11 +493,11 @@ export default function ApiPlaygroundPage() {
             <div className="relative flex flex-col h-full">
                 {/* ─── Starter Request Limit Banner ─── */}
                 {!subLoading && isStarter && (
-                    <div className="shrink-0 p-3 bg-gradient-to-r from-amber-500/10 to-cyan-500/10 border border-amber-500/20 rounded-xl mb-4 flex items-center justify-between">
-                        <span className="text-amber-400 text-xs font-semibold">Starter Plan — {Math.max(0, 5 - starterRequestCount)}/5 free requests remaining</span>
+                    <div className="shrink-0 p-3 bg-loss/10 border border-loss/20 rounded-xl mb-4 flex items-center justify-between">
+                        <span className="text-loss text-xs font-semibold">Starter Plan — API Playground access is locked.</span>
                         <Link
                             href="/select-plan"
-                            className="px-3 py-1 bg-gradient-to-r from-cyan-500 to-primary text-white rounded-lg text-[10px] font-bold hover:opacity-90 transition-opacity"
+                            className="px-3 py-1 bg-gradient-to-r from-red-500 to-loss text-white rounded-lg text-[10px] font-bold hover:opacity-90 transition-opacity"
                         >
                             Upgrade for Unlimited →
                         </Link>
@@ -554,10 +604,9 @@ export default function ApiPlaygroundPage() {
                                     </div>
                                 )}
 
-                                {/* Execute Button */}
                                 <button
                                     onClick={executeRequest}
-                                    disabled={loading || (isStarter && starterRequestCount >= 5)}
+                                    disabled={loading || isStarter}
                                     className="w-full mt-6 px-4 py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                                 >
                                     {loading ? (

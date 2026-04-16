@@ -589,6 +589,34 @@ console.log(data);`,
                 python: `r = requests.get("${BASE}/market/search", params={"query": "apple", "limit": 5})`,
                 javascript: `const res = await fetch("${BASE}/market/search?query=apple&limit=5");`,
             },
+            {
+                method: "GET",
+                path: "/market/ipos",
+                description: "Scrape the live, real-time IPO calendar including upcoming and recently priced Initial Public Offerings. Returns exact deal sizes and shares offered.",
+                params: [],
+                responseExample: `{
+  "ipos": [
+    { "date": "2026-04-09", "symbol": "TMCR", "name": "The Metals Royalty Company", "exchange": "NASDAQ", "price": "10.00", "shares": "50,000,000", "value": "500.00M", "return_pct": "-", "status": "Upcoming" }
+  ]
+}`,
+                curl: `curl "${BASE}/market/ipos"`,
+                python: `r = requests.get("${BASE}/market/ipos")`,
+                javascript: `const res = await fetch("${BASE}/market/ipos");`,
+            },
+            {
+                method: "POST",
+                path: "/market/ipos/analyze",
+                description: "Execute a DeepSeek AI analysis acting as an investment banker breaking down the viability of an upcoming IPO. Analyzes business model, underwriters, and valuation math.",
+                params: [
+                    { name: "body", type: "JSON", description: "Standard IPO details object mapping from /market/ipos", required: true },
+                ],
+                responseExample: `{
+  "analysis": "### Company Business Model...\\n\\n### Valuation Math..."
+}`,
+                curl: `curl -X POST "${BASE}/market/ipos/analyze" -H "Content-Type: application/json" -d '{"symbol":"TMCR","name":"The Metals Royalty","price":"10.00","shares":"10,000,000","value":"100M"}'`,
+                python: `r = requests.post("${BASE}/market/ipos/analyze", json={"symbol":"TMCR","name":"The Metals Royalty","price":"10.0","shares":"1000000","value":"10M"})`,
+                javascript: `const res = await fetch("${BASE}/market/ipos/analyze", { method: 'POST', body: JSON.stringify({symbol:"TMCR",name:"The Metals Royalty",price:"10",shares:"10M",value:"100M"}) });`,
+            },
         ],
     },
 ];
@@ -671,7 +699,7 @@ export default function ApiDocsPage() {
                             </div>
                             <div className="bg-surface/80 border border-border rounded-xl p-5 mb-6">
                                 <h3 className="text-sm font-semibold text-primary mb-3">Authentication</h3>
-                                <p className="text-sm text-text-muted mb-2">Pass your API key in the <code className="text-primary/80 font-mono text-xs bg-primary/5 px-1.5 py-0.5 rounded">X-API-Key</code> header. Anonymous access is available with rate limits.</p>
+                                <p className="text-sm text-text-muted mb-2">Pass your API key in the <code className="text-primary/80 font-mono text-xs bg-primary/5 px-1.5 py-0.5 rounded">X-API-Key</code> header. Anonymous access is strictly prohibited and rate limited to 0 requests.</p>
                                 <pre className="bg-background rounded-lg p-3 text-xs font-mono text-text-main mt-3">curl -H &quot;X-API-Key: YOUR_KEY&quot; {BASE}/company/AAPL/earnings-summary</pre>
                             </div>
                             <div className="grid grid-cols-2 gap-3">
@@ -698,8 +726,8 @@ export default function ApiDocsPage() {
                                         </tr>
                                     </thead>
                                     <tbody className="text-text-main font-mono">
-                                        <tr className="border-t border-border/50"><td className="py-2">Anonymous</td><td>10</td><td className="text-text-muted text-xs font-sans">No key required</td></tr>
-                                        <tr className="border-t border-border/50"><td className="py-2">Starter</td><td>30</td><td className="text-text-muted text-xs font-sans">API key required</td></tr>
+                                        <tr className="border-t border-border/50"><td className="py-2">Anonymous</td><td>0</td><td className="text-text-muted text-xs font-sans text-red-500 font-semibold">Not permitted</td></tr>
+                                        <tr className="border-t border-border/50"><td className="py-2">Starter</td><td>0</td><td className="text-text-muted text-xs font-sans text-red-500 font-semibold">Upgrade to premium</td></tr>
                                         <tr className="border-t border-border/50"><td className="py-2">Premium</td><td>120</td><td className="text-text-muted text-xs font-sans">API key required</td></tr>
                                         <tr className="border-t border-border/50"><td className="py-2">Enterprise</td><td>600</td><td className="text-text-muted text-xs font-sans">API key required</td></tr>
                                     </tbody>

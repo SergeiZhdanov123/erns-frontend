@@ -187,7 +187,7 @@ export default function APIAccessPage() {
                         {isStarterUser && (
                             <div className="mb-4 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs">
                                 <p className="font-semibold mb-1 text-amber-400">Starter Plan — API Keys Locked</p>
-                                <p className="text-amber-400/70 mb-2">You can test endpoints in the <Link href="/api-playground" className="text-primary underline hover:text-primary/80">API Playground</Link> for free, but generating API keys requires Pro or Enterprise.</p>
+                                <p className="text-amber-400/70 mb-2">The API Playground and your backend integration parameters are strictly protected. You must upgrade to Pro or Enterprise to issue requests or generate keys.</p>
                                 <div className="flex items-center gap-2 mt-2">
                                     <Link
                                         href="/select-plan"
